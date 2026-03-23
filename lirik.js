@@ -298,4 +298,9 @@ export default {
     OnlyOwner: false,
 };
 
-// GITHUB: https://github.com/GitaNraeni/miniature-engine
+/* 
+╭─〔 SEARCH LIRIK 〕─⬣
+│ GITHUB: https://github.com/GitaNraeni/miniature-engine
+│ Created By: GitaNraeni
+╰────────────⬣
+*/
