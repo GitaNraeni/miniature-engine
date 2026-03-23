@@ -182,3 +182,4 @@ export default {
 │ GITHUB: https://github.com/GitaNraeni/miniature-engine
 │ Created By: GitaNraeni
 ╰────────────⬣
+*/
