@@ -177,4 +177,9 @@ export default {
   OnlyPremium: false,
 };
 
-// GITHUB: https://github.com/GitaNraeni/miniature-engine
+/* 
+╭─〔 CEK ID CH 〕─⬣
+│ GITHUB: https://github.com/GitaNraeni/miniature-engine
+│ Created By: GitaNraeni
+╰────────────⬣
+*/
