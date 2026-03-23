@@ -205,4 +205,9 @@ export default {
   OnlyOwner: false,
 };
 
-// GITHUB: https://github.com/GitaNraeni/miniature-engine
+/* 
+╭─〔 CEK CUACA 〕─⬣
+│ GITHUB: https://github.com/GitaNraeni/miniature-engine
+│ Created By: GitaNraeni
+╰────────────⬣
+*/
