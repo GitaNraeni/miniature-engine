@@ -28,26 +28,44 @@ function formatNumber(value, suffix = "") {
   return `${value}${suffix}`;
 }
 
-// 🔥 FIX TIME (NO DATE PARSE)
-function formatTime(iso) {
-  if (!iso) return "-";
+function getTimezoneLabel(timezone = "") {
+  const map = {
+    "Asia/Jakarta": "WIB",
+    "Asia/Pontianak": "WIB",
+    "Asia/Makassar": "WITA",
+    "Asia/Jayapura": "WIT",
+  };
+
+  return map[timezone] || timezone;
+}
+
+function formatTimeInZone(dateInput, timezone = "Asia/Jakarta", withZone = false) {
+  if (!dateInput) return "-";
 
   try {
-    const [datePart, timePart] = String(iso).split("T");
-    if (!datePart || !timePart) return iso;
+    const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
 
-    const [year, month, day] = datePart.split("-").map(Number);
-    const [hour, minute] = timePart.split(":").map(Number);
+    const parts = new Intl.DateTimeFormat("id-ID", {
+      timeZone: timezone,
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(date);
 
-    const bulan = [
-      "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
-      "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
-    ];
+    const get = (type) => parts.find((p) => p.type === type)?.value || "";
+    const text = `${get("day")} ${get("month")} ${get("year")}, ${get("hour")}.${get("minute")}`;
 
-    return `${day} ${bulan[(month || 1) - 1]} ${year}, ${String(hour).padStart(2, "0")}.${String(minute).padStart(2, "0")}`;
+    return withZone ? `${text} ${getTimezoneLabel(timezone)}` : text;
   } catch {
-    return iso;
+    return String(dateInput);
   }
+}
+
+function getRealtimeLocalTime(timezone = "Asia/Jakarta") {
+  return formatTimeInZone(new Date(), timezone, true);
 }
 
 async function react(sock, jid, key, emoji) {
@@ -92,7 +110,7 @@ async function getWeather(lat, lon, timezone) {
     params: {
       latitude: lat,
       longitude: lon,
-      timezone, // 🔥 pakai timezone asli
+      timezone,
       current: [
         "temperature_2m",
         "relative_humidity_2m",
@@ -120,24 +138,26 @@ function buildCaption(loc, data) {
   const d = data.daily;
 
   const lokasi = [loc.name, loc.admin, loc.country].filter(Boolean).join(", ");
+  const zona = getTimezoneLabel(loc.timezone);
 
   return `╭─〔 *CEK CUACA* 〕
-│
 │ 📍 *Lokasi*   : ${lokasi}
+│ 🌍 *Zona*     : ${zona}
+│ 🕒 *Sekarang* : ${getRealtimeLocalTime(loc.timezone)}
+│
 │ 🌤️ *Cuaca*   : ${weatherCodeToText(c.weather_code)}
 │ 🌡️ *Suhu*    : ${formatNumber(c.temperature_2m, "°C")}
 │ 🥵 *Terasa*  : ${formatNumber(c.apparent_temperature, "°C")}
 │ 💧 *Lembap*  : ${formatNumber(c.relative_humidity_2m, "%")}
 │ 🌧️ *Hujan*   : ${formatNumber(c.precipitation, " mm")}
 │ 💨 *Angin*   : ${formatNumber(c.wind_speed_10m, " km/j")}
-│ 🕒 *Waktu*   : ${formatTime(c.time)}
 │ 🌗 *Status*  : ${c.is_day ? "Siang" : "Malam"}
+│ 📡 *Update*  : ${formatTimeInZone(c.time, loc.timezone, true)}
 │
 │ 🌡️ *Max*     : ${formatNumber(d.temperature_2m_max?.[0], "°C")}
 │ 🧊 *Min*     : ${formatNumber(d.temperature_2m_min?.[0], "°C")}
-│ 🌅 *Sunrise* : ${formatTime(d.sunrise?.[0])}
-│ 🌇 *Sunset*  : ${formatTime(d.sunset?.[0])}
-│
+│ 🌅 *Sunrise* : ${formatTimeInZone(d.sunrise?.[0], loc.timezone, true)}
+│ 🌇 *Sunset*  : ${formatTimeInZone(d.sunset?.[0], loc.timezone, true)}
 ╰────────────────`;
 }
 
@@ -151,13 +171,14 @@ async function handle(sock, m) {
       return sock.sendMessage(remoteJid, {
         text:
 `╭─〔 *CEK CUACA* 〕
-│
 │ Masukin nama kota
 │
 │ Contoh:
 │ ⌕ ${prefix + command} Jakarta
-│ ⌕ ${prefix + command} Bandung
-│
+│ ⌕ ${prefix + command} Pontianak
+│ ⌕ ${prefix + command} Balikpapan
+│ ⌕ ${prefix + command} Mataram
+│ ⌕ ${prefix + command} Jayapura
 ╰────────────────`
       }, { quoted: message });
     }
