@@ -177,4 +177,8 @@ export default {
   OnlyOwner: false,
 };
 
-// GITHUB: https://github.com/GitaNraeni/miniature-engine
+/* 
+╭─〔 ROBLOX STALK 〕─⬣
+│ GITHUB: https://github.com/GitaNraeni/miniature-engine
+│ Created By: GitaNraeni
+╰────────────⬣
